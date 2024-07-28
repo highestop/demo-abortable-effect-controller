@@ -1,6 +1,7 @@
 import { AsyncTask } from './async-task'
 import { AsyncTaskController } from './async-task-controller'
 import { IDestroyController } from './destroy-controller'
+import { generateDestroyError } from './destroy-error'
 
 /**
  *
@@ -17,7 +18,7 @@ export function promiseToAsyncTask<T>(
         try {
             const ret = await promise
             if (signal.aborted) {
-                reject('AbortError')
+                reject(generateDestroyError(signal.reason))
                 return
             }
             resolve(ret)
