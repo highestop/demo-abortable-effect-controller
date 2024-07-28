@@ -1,4 +1,4 @@
-import { AsyncTaskController } from './async-task-controller'
+import { EffectCleanupController } from "./effect-cleanup-controller"
 
 /**
  *
@@ -11,7 +11,7 @@ export function wrapIntervalWithSingal(
     interval: number,
     signal: AbortSignal
 ) {
-    AsyncTaskController.assertEnabled('setInterval with signal')
+    EffectCleanupController.assertCanCreateAsyncTask('setInterval with signal')
     // const stv = setInterval(() => {
     //     if (!signal.aborted) {
     //         callback()

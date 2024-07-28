@@ -1,4 +1,4 @@
-import { AsyncTaskController } from './async-task-controller'
+import { EffectCleanupController } from "./effect-cleanup-controller"
 
 /**
  *
@@ -9,7 +9,7 @@ export function wrapQueueMicrotaskWithSignal<T>(
     callback: () => Promise<T>,
     signal: AbortSignal
 ) {
-    AsyncTaskController.assertEnabled('queueMicrotask with signal')
+    EffectCleanupController.assertCanCreateAsyncTask('queueMicrotask with signal')
     queueMicrotask(() => {
         if (!signal.aborted) {
             callback()

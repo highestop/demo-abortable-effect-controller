@@ -1,18 +1,17 @@
-import { AsyncTaskController } from './async-task-controller'
-import { IDestroyController, DestroyController } from './destroy-controller'
+import { IEffectCleanupController, EffectCleanupController } from './effect-cleanup-controller'
 
 type AsyncTaskExecutor<T> = (
     resolve: (value: T | PromiseLike<T> | AsyncTask<T>) => void,
     reject: (reason?: any) => any,
     abortSignal: AbortSignal,
-    onDestroy: (callback: () => void) => void
+    onCleanup: (callback: () => void) => void
 ) => void
 export class AsyncTask<T = void> extends Promise<T> {
     constructor(
         executor: AsyncTaskExecutor<T>,
-        controller: IDestroyController = new DestroyController()
+        controller: IEffectCleanupController = new EffectCleanupController()
     ) {
-        AsyncTaskController.assertEnabled()
+        EffectCleanupController.assertCanCreateAsyncTask()
         if (controller.abortSignal.aborted) {
             throw new Error(
                 'Cannot attach task to an already aborted controller.'
@@ -23,7 +22,7 @@ export class AsyncTask<T = void> extends Promise<T> {
                 resolve,
                 reject,
                 controller.abortSignal,
-                controller.onDestroy
+                controller.onCleanup
             )
         })
     }

@@ -1,4 +1,4 @@
-import { AsyncTaskController } from './async-task-controller'
+import { EffectCleanupController } from "./effect-cleanup-controller"
 
 /**
  *
@@ -9,7 +9,7 @@ export function wrapRequestIdleCallbackWithSignal(
     callback: () => void,
     signal: AbortSignal
 ) {
-    AsyncTaskController.assertEnabled('requestIdleCallback with signal')
+    EffectCleanupController.assertCanCreateAsyncTask('requestIdleCallback with signal')
     // const ric = requestIdleCallback(() => {
     //     if (!signal.aborted) {
     //         callback()

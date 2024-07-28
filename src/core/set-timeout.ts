@@ -1,4 +1,4 @@
-import { AsyncTaskController } from './async-task-controller'
+import { EffectCleanupController } from "./effect-cleanup-controller"
 
 /**
  *
@@ -11,7 +11,7 @@ export function wrapTimeoutWithSignal(
     timeout: number,
     signal: AbortSignal
 ) {
-    AsyncTaskController.assertEnabled('setTimeout with signal')
+    EffectCleanupController.assertCanCreateAsyncTask('setTimeout with signal')
     // const sto = setTimeout(() => {
     //     if (!signal.aborted) {
     //         callback()

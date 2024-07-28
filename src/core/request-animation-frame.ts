@@ -1,4 +1,4 @@
-import { AsyncTaskController } from './async-task-controller'
+import { EffectCleanupController } from "./effect-cleanup-controller"
 
 /**
  *
@@ -10,7 +10,7 @@ export function wrapRequestAnimationFrameWithSignal(
     callback: FrameRequestCallback,
     signal: AbortSignal
 ) {
-    AsyncTaskController.assertEnabled('requestAnimationFrame with signal')
+    EffectCleanupController.assertCanCreateAsyncTask('requestAnimationFrame with signal')
     // const raf = requestAnimationFrame((time: DOMHighResTimeStamp) => {
     //     if (!signal.aborted) {
     //         callback(time)

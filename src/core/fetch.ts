@@ -1,4 +1,4 @@
-import { AsyncTaskController } from './async-task-controller'
+import { EffectCleanupController } from './effect-cleanup-controller'
 
 /**
  *
@@ -7,6 +7,6 @@ import { AsyncTaskController } from './async-task-controller'
  * @returns
  */
 export function wrapFetchWithSignal(request: RequestInfo, signal: AbortSignal) {
-    AsyncTaskController.assertEnabled('fetch with signal')
+    EffectCleanupController.assertCanCreateAsyncTask('fetch with signal')
     return fetch(request, { signal })
 }
