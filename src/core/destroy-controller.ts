@@ -15,11 +15,9 @@ export class DestroyController implements IDestroyController {
     get abortSignal() {
         return this.abortController.signal
     }
-    private destroyCallbacks: Set<() => void> = new Set()
     onDestroy = (destroyListener: () => void) => {
-        this.destroyCallbacks.add(destroyListener)
         const destroy = () => {
-            this.destroyCallbacks.delete(destroyListener)
+            destroyListener()
             this.abortSignal.removeEventListener('abort', destroy)
         }
         this.abortSignal.addEventListener('abort', destroy)
@@ -27,7 +25,6 @@ export class DestroyController implements IDestroyController {
     destroy(reason?: string) {
         AsyncTaskController.disable()
         this.abortController.abort(reason)
-        this.destroyCallbacks.clear()
         AsyncTaskController.enable()
     }
 }
