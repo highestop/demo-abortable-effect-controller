@@ -1,8 +1,8 @@
-import { IEffectController } from './effect-controller'
+import { IDestroyController } from './destroy-controller'
 
-export abstract class BaseClassWithEffect {
-    constructor(controller: IEffectController) {
-        controller.onCleanup(() => {
+export abstract class ClassWithDestroy {
+    constructor(controller: IDestroyController) {
+        controller.onDestroy(() => {
             // @ts-ignore
             if (process.env.NODE_ENV === 'development') {
                 console.log('destroy class:', this.constructor.name)

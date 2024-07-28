@@ -1,3 +1,5 @@
+import { AsyncTaskController } from './async-task-controller'
+
 /**
  *
  * @param callback
@@ -9,6 +11,7 @@ export function wrapTimeoutWithSignal(
     timeout: number,
     signal: AbortSignal
 ) {
+    AsyncTaskController.assertEnabled('setTimeout with signal')
     // const sto = setTimeout(() => {
     //     if (!signal.aborted) {
     //         callback()

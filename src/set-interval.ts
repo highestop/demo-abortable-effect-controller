@@ -1,3 +1,5 @@
+import { AsyncTaskController } from './async-task-controller'
+
 /**
  *
  * @param callback
@@ -9,6 +11,7 @@ export function wrapIntervalWithSingal(
     interval: number,
     signal: AbortSignal
 ) {
+    AsyncTaskController.assertEnabled('setInterval with signal')
     // const stv = setInterval(() => {
     //     if (!signal.aborted) {
     //         callback()

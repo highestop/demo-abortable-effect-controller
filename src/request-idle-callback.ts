@@ -1,3 +1,5 @@
+import { AsyncTaskController } from './async-task-controller'
+
 /**
  *
  * @param callback
@@ -7,6 +9,7 @@ export function wrapRequestIdleCallbackWithSignal(
     callback: () => void,
     signal: AbortSignal
 ) {
+    AsyncTaskController.assertEnabled('requestIdleCallback with signal')
     // const ric = requestIdleCallback(() => {
     //     if (!signal.aborted) {
     //         callback()

@@ -1,5 +1,6 @@
 import { AsyncTask } from './async-task'
-import { IEffectController } from './effect-controller'
+import { AsyncTaskController } from './async-task-controller'
+import { IDestroyController } from './destroy-controller'
 
 /**
  *
@@ -9,8 +10,9 @@ import { IEffectController } from './effect-controller'
  */
 export function promiseToAsyncTask<T>(
     promise: Promise<T>,
-    controller: IEffectController
+    controller: IDestroyController
 ) {
+    AsyncTaskController.assertEnabled('create async task from promise')
     return new AsyncTask<T>(async (resolve, reject, signal) => {
         try {
             const ret = await promise
