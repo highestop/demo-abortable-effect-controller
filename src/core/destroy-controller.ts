@@ -7,7 +7,6 @@ export interface IDestroyController {
 
 export class DestroyController implements IDestroyController {
     constructor(private readonly name?: string) {
-        // @ts-ignore
         if (process.env.NODE_ENV === 'development') {
             console.log('create controller:', this.name)
         }
