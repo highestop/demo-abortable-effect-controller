@@ -1,7 +1,7 @@
 import { EffectCleanupController } from "./effect-cleanup-controller"
 
 /**
- *
+ * Wrap setTimeout with an abort signal.
  * @param callback
  * @param timeout
  * @param signal
@@ -11,18 +11,19 @@ export function wrapTimeoutWithSignal(
     timeout: number,
     signal: AbortSignal
 ) {
+    // check if it's safe to create a new async task
     EffectCleanupController.assertCanCreateAsyncTask('setTimeout with signal')
-    // const sto = setTimeout(() => {
-    //     if (!signal.aborted) {
-    //         callback()
-    //     }
-    //     clearTimeout(sto)
-    // }, timeout)
+
+    // create a new setTimeout
     const sto = setTimeout(callback, timeout)
-    const listener = () => {
+
+    // add an event listener to cancel the setTimeout when the signal is aborted
+    const cleanup = () => {
         clearTimeout(sto)
-        signal.removeEventListener('abort', listener)
+        signal.removeEventListener('abort', cleanup)
     }
-    signal.addEventListener('abort', listener)
+    signal.addEventListener('abort', cleanup)
+
+    // return the setTimeout id
     return sto
 }

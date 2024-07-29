@@ -1,5 +1,6 @@
 import { IEffectCleanupController } from './effect-cleanup-controller'
 
+// Abstract class with effect cleanup
 export abstract class ClassWithEffect {
     constructor(controller: IEffectCleanupController) {
         controller.onCleanup(() => {
