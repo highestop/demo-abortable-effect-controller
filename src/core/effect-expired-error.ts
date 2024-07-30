@@ -1,4 +1,4 @@
-const EFFECT_EXPIRED_ERROR_NAME = 'EffectExpiredError'
+const EFFECT_CLEANED_UP_ERROR_NAME = 'EffectCleanedError'
 
 /**
  * Generate an error that indicates that an effect has expired.
@@ -7,7 +7,7 @@ const EFFECT_EXPIRED_ERROR_NAME = 'EffectExpiredError'
  */
 export function generateEffectExpiredError(reason?: string) {
     return new Error(
-        reason ? `${EFFECT_EXPIRED_ERROR_NAME}: ${reason}` : EFFECT_EXPIRED_ERROR_NAME
+        reason ? `${EFFECT_CLEANED_UP_ERROR_NAME}: ${reason}` : EFFECT_CLEANED_UP_ERROR_NAME
     )
 }
 
@@ -18,6 +18,6 @@ export function generateEffectExpiredError(reason?: string) {
  */
 export function isEffectExpiredError(error: string | Error) {
     return error instanceof Error
-        ? error.message.startsWith(EFFECT_EXPIRED_ERROR_NAME)
-        : typeof error === 'string' && error.startsWith(EFFECT_EXPIRED_ERROR_NAME)
+        ? error.message.startsWith(EFFECT_CLEANED_UP_ERROR_NAME)
+        : typeof error === 'string' && error.startsWith(EFFECT_CLEANED_UP_ERROR_NAME)
 }

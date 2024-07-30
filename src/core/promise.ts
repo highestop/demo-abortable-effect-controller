@@ -4,25 +4,25 @@ import { generateEffectExpiredError } from './effect-expired-error'
 
 /**
  * Convert a promise to an async task.
- * @param promise
+ * @param originalPromise
  * @param controller
  * @returns
  */
 export function promiseToAsyncTask<T>(
-    promise: Promise<T>,
-    controller: IEffectCleanupController
+    originalPromise: Promise<T>,
+    parentController: IEffectCleanupController
 ) {
     // check if it's safe to create a new async task
     EffectCleanupController.assertCanCreateAsyncTask('create async task from promise')
 
     // return a new async task that wraps the promise
-    return new AsyncTask<T>(async (resolve, reject, signal) => {
+    return new AsyncTask<T>(async (resolve, reject, controller) => {
         try {
-            const ret = await promise
+            const ret = await originalPromise
 
             // if the controller is already aborted, reject the task with expired error
-            if (signal.aborted) {
-                reject(generateEffectExpiredError(signal.reason))
+            if (controller.abortSignal.aborted) {
+                reject(generateEffectExpiredError(controller.abortSignal.reason))
                 return
             }
 
@@ -31,5 +31,5 @@ export function promiseToAsyncTask<T>(
         } catch (e) {
             reject(e)
         }
-    }, controller)
+    }, parentController)
 }

@@ -3,8 +3,7 @@ import { IEffectCleanupController, EffectCleanupController } from './effect-clea
 type AsyncTaskExecutor<T> = (
     resolve: (value: T | PromiseLike<T> | AsyncTask<T>) => void,
     reject: (reason?: any) => any,
-    abortSignal: AbortSignal,
-    onCleanup: (callback: () => void) => void
+    controller: IEffectCleanupController
 ) => void
 
 export class AsyncTask<T = void> extends Promise<T> {
@@ -27,8 +26,7 @@ export class AsyncTask<T = void> extends Promise<T> {
             executor(
                 resolve,
                 reject,
-                controller.abortSignal,
-                controller.onCleanup
+                controller
             )
         })
     }
