@@ -1,28 +1,19 @@
-import { EffectCleanupController } from "./effect-cleanup-controller"
+import { EffectController } from './effect-controller'
 
-/**
- * Wrap setInterval with an abort signal.
- * @param callback
- * @param interval
- * @param signal
- */
-export function wrapIntervalWithSingal(
+export function setIntervalWithController(
     callback: () => void,
     interval: number,
-    signal: AbortSignal
+    controller: EffectController = new EffectController()
 ) {
-    EffectCleanupController.assertCanCreateAsyncTask('setInterval with signal')
+    EffectController.assertCanCreateAsyncTask('Interval')
+    controller.assertCanCreateAsyncTask('Interval')
 
-    // create a new setInterval
     const stv = setInterval(callback, interval)
-
-    // add an event listener to cancel the setInterval when the signal is aborted
     const cleanup = () => {
         clearInterval(stv)
-        signal.removeEventListener('abort', cleanup)
+        controller.abortSignal.removeEventListener('abort', cleanup)
     }
-    signal.addEventListener('abort', cleanup)
+    controller.abortSignal.addEventListener('abort', cleanup)
 
-    // return the setInterval id
-    return stv
+    return controller
 }

@@ -1,28 +1,18 @@
-import { EffectCleanupController } from "./effect-cleanup-controller"
+import { EffectController } from './effect-controller'
 
-/**
- * Wrap requestAnimationFrame with an abort signal.
- * @param callback
- * @param signal
- * @returns
- */
-export function wrapRequestAnimationFrameWithSignal(
+export function requestAnimationFrameWithController(
     callback: FrameRequestCallback,
-    signal: AbortSignal
+    controller: EffectController = new EffectController()
 ) {
-    // check if it's safe to create a new async task
-    EffectCleanupController.assertCanCreateAsyncTask('requestAnimationFrame with signal')
+    EffectController.assertCanCreateAsyncTask('RequestAnimationFrame')
+    controller.assertCanCreateAsyncTask('RequestAnimationFrame')
 
-    // create a new requestAnimationFrame
     const raf = requestAnimationFrame(callback)
-
-    // add an event listener to cancel the requestAnimationFrame when the signal is aborted
     const cleanup = () => {
         cancelAnimationFrame(raf)
-        signal.removeEventListener('abort', cleanup)
+        controller.abortSignal.removeEventListener('abort', cleanup)
     }
-    signal.addEventListener('abort', cleanup)
+    controller.abortSignal.addEventListener('abort', cleanup)
 
-    // return the requestAnimationFrame id
-    return raf
+    return controller
 }

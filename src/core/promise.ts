@@ -1,35 +1,39 @@
 import { AsyncTask } from './async-task'
-import { EffectCleanupController, IEffectCleanupController } from './effect-cleanup-controller'
-import { generateEffectExpiredError } from './effect-expired-error'
+import { EffectController } from './effect-controller'
+import { EffectExpireError } from './effect-expire-error'
+import { errorMessage } from './util'
 
-/**
- * Convert a promise to an async task.
- * @param originalPromise
- * @param controller
- * @returns
- */
-export function promiseToAsyncTask<T>(
-    originalPromise: Promise<T>,
-    parentController: IEffectCleanupController
+export function promiseWithController<T>(
+    promise: Promise<T>,
+    controller: EffectController = new EffectController()
 ) {
-    // check if it's safe to create a new async task
-    EffectCleanupController.assertCanCreateAsyncTask('create async task from promise')
+    EffectController.assertCanCreateAsyncTask('Promise')
+    controller.assertCanCreateAsyncTask('Promise')
 
-    // return a new async task that wraps the promise
-    return new AsyncTask<T>(async (resolve, reject, controller) => {
-        try {
-            const ret = await originalPromise
+    const _promise = new AsyncTask<T>(
+        async (_resolve, _reject, _controller) => {
+            try {
+                const ret = await promise
 
-            // if the controller is already aborted, reject the task with expired error
-            if (controller.abortSignal.aborted) {
-                reject(generateEffectExpiredError(controller.abortSignal.reason))
-                return
+                if (_controller.abortSignal.aborted) {
+                    _reject(
+                        new Error(
+                            errorMessage(
+                                EffectExpireError,
+                                _controller.abortSignal.reason
+                            )
+                        )
+                    )
+                    return
+                }
+
+                _resolve(ret)
+            } catch (e) {
+                _reject(e)
             }
+        },
+        controller
+    )
 
-            // otherwise, resolve the task with the result
-            resolve(ret)
-        } catch (e) {
-            reject(e)
-        }
-    }, parentController)
+    return [_promise, controller]
 }

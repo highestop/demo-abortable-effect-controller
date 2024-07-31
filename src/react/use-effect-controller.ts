@@ -1,27 +1,22 @@
 import { DependencyList, useEffect } from 'react'
-import { EffectCleanupController, IEffectCleanupController } from '../core/effect-cleanup-controller'
+import { EffectController } from '../core/effect-controller'
 
 /**
- * 
- * @param setup 
- * @param deps 
- * @param options 
+ *
+ * @param setup
+ * @param deps
+ * @param options
  */
 export function useEffectController(
-    setup: (controller: IEffectCleanupController) => any,
+    setup: (controller: EffectController) => any,
     deps: DependencyList,
-    options?: { name?: string, reason?: string }
+    options?: { controllerName?: string; cleanupReason?: string }
 ) {
     useEffect(() => {
-        // create a new effect cleanup controller
-        const controller = new EffectCleanupController(options?.name)
-
-        // run the setup function with the controller
+        const controller = new EffectController(options?.controllerName)
         setup(controller)
-
-        // cleanup the controller when the effect is destroyed
         return () => {
-            controller.cleanup(options?.reason)
+            controller.destroy(options?.cleanupReason)
         }
     }, deps)
 }

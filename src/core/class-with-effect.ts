@@ -1,12 +1,20 @@
-import { IEffectCleanupController } from './effect-cleanup-controller'
+import { EffectController } from './effect-controller'
+import { devLog, isDev } from './util'
 
-// Abstract class with effect cleanup
 export abstract class ClassWithEffect {
-    constructor(controller: IEffectCleanupController) {
-        controller.cleanupOnDestroyed(() => {
-            if (process.env.NODE_ENV === 'development') {
-                console.log('destroy class:', this.constructor.name)
-            }
+    protected controller: EffectController
+    constructor(controller: EffectController = new EffectController()) {
+        devLog(
+            '[create class with effect]',
+            this.constructor.name,
+            controller.name
+        )
+        controller.onDestroy(() => {
+            devLog(
+                '[destroy class with effect]',
+                this.constructor.name,
+                controller.name
+            )
             this.onDestroyed()
         })
     }

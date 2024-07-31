@@ -1,22 +1,19 @@
-import { IEffectCleanupController } from "./effect-cleanup-controller";
+import { EffectController } from './effect-controller'
 
-/**
- * Create a new WebSocket with cleanup.
- * @param configs 
- * @param controller 
- * @returns 
- */
-export function createSocket(configs: {
-    url: string | URL,
-    protocols?: string | string[]
-}, controller: IEffectCleanupController) {
+export function createSocket(
+    configs: {
+        url: string | URL
+        protocols?: string | string[]
+    },
+    controller: EffectController = new EffectController()
+) {
+    EffectController.assertCanCreateAsyncTask('WebSocket')
+    controller.assertCanCreateAsyncTask('WebSocket')
+
     const socket = new WebSocket(configs.url, configs.protocols)
-
-    // cleanup the socket when the controller is destroyed
-    controller.onCleanup(() => {
+    controller.onDestroy(() => {
         socket.close()
     })
 
-    // return the socket
-    return socket
+    return [socket, controller]
 }

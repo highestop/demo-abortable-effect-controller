@@ -1,24 +1,18 @@
-import { EffectCleanupController } from "./effect-cleanup-controller"
+import { EffectController } from './effect-controller'
 
-/**
- * Wrap requestIdleCallback with an abort signal.
- * @param callback
- * @param signal
- */
-export function wrapRequestIdleCallbackWithSignal(
+export function requestIdleCallbackWithController(
     callback: () => void,
-    signal: AbortSignal
+    controller: EffectController = new EffectController()
 ) {
-    // check if it's safe to create a new async task
-    EffectCleanupController.assertCanCreateAsyncTask('requestIdleCallback with signal')
+    EffectController.assertCanCreateAsyncTask('RequestIdleCallback')
+    controller.assertCanCreateAsyncTask('RequestIdleCallback')
 
-    // create a new requestIdleCallback
     const ric = requestIdleCallback(callback)
-
-    // add an event listener to cancel the requestIdleCallback when the signal is aborted
     const cleanup = () => {
         cancelIdleCallback(ric)
-        signal.removeEventListener('abort', cleanup)
+        controller.abortSignal.removeEventListener('abort', cleanup)
     }
-    signal.addEventListener('abort', cleanup)
+    controller.abortSignal.addEventListener('abort', cleanup)
+
+    return controller
 }

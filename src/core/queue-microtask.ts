@@ -1,21 +1,17 @@
-import { EffectCleanupController } from "./effect-cleanup-controller"
+import { EffectController } from './effect-controller'
 
-/**
- * Wrap queueMicrotask with an abort signal.
- * @param callback
- * @param signal
- */
-export function wrapQueueMicrotaskWithSignal<T>(
-    callback: () => Promise<T>,
-    signal: AbortSignal
+export function queueMicrotaskWithController<T>(
+    callback: () => Promise<T> | PromiseLike<T>,
+    controller: EffectController = new EffectController()
 ) {
-    // check if it's safe to create a new async task
-    EffectCleanupController.assertCanCreateAsyncTask('queueMicrotask with signal')
+    EffectController.assertCanCreateAsyncTask('Microtask')
+    controller.assertCanCreateAsyncTask('Microtask')
 
-    // call queueMicrotask with the signal inside to prevent the callback from being executed after aborting
     queueMicrotask(() => {
-        if (!signal.aborted) {
+        if (!controller.abortSignal.aborted) {
             callback()
         }
     })
+
+    return controller
 }

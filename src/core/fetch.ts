@@ -1,15 +1,11 @@
-import { EffectCleanupController } from './effect-cleanup-controller'
+import { EffectController } from './effect-controller'
 
-/**
- * Wrap fetch with an abort signal.
- * @param request
- * @param signal
- * @returns
- */
-export function wrapFetchWithSignal(request: RequestInfo, signal: AbortSignal) {
-    // check if it's safe to create a new async task
-    EffectCleanupController.assertCanCreateAsyncTask('fetch with signal')
+export function fetchWithController(
+    request: RequestInfo,
+    controller: EffectController = new EffectController()
+) {
+    EffectController.assertCanCreateAsyncTask('Fetch')
+    controller.assertCanCreateAsyncTask('Fetch')
 
-    // create a new fetch request with the signal
-    return fetch(request, { signal })
+    return [fetch(request, { signal: controller.abortSignal }), controller]
 }

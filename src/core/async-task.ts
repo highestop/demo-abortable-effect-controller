@@ -1,33 +1,21 @@
-import { IEffectCleanupController, EffectCleanupController } from './effect-cleanup-controller'
+import { EffectController } from './effect-controller'
 
 type AsyncTaskExecutor<T> = (
     resolve: (value: T | PromiseLike<T> | AsyncTask<T>) => void,
     reject: (reason?: any) => any,
-    controller: IEffectCleanupController
+    controller: EffectController
 ) => void
 
 export class AsyncTask<T = void> extends Promise<T> {
     constructor(
         executor: AsyncTaskExecutor<T>,
-        controller: IEffectCleanupController = new EffectCleanupController()
+        controller: EffectController = new EffectController()
     ) {
-        // check if it's safe to create a new async task
-        EffectCleanupController.assertCanCreateAsyncTask()
+        EffectController.assertCanCreateAsyncTask('AsyncTask')
+        controller.assertCanCreateAsyncTask('AsyncTask')
 
-        // if the controller is already aborted, throw an error
-        if (controller.abortSignal.aborted) {
-            throw new Error(
-                'Cannot attach task to an already aborted controller.'
-            )
-        }
-
-        // call the parent constructor with the executor. provide abortSignal and onCleanup register
         super((resolve, reject) => {
-            executor(
-                resolve,
-                reject,
-                controller
-            )
+            executor(resolve, reject, controller)
         })
     }
 }
