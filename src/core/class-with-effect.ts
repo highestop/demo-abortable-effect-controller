@@ -1,22 +1,22 @@
 import { EffectController } from './effect-controller'
-import { devLog, isDev } from './util'
+import { traceLog } from './util'
 
 export abstract class ClassWithEffect {
     protected controller: EffectController
     constructor(controller: EffectController = new EffectController()) {
-        devLog(
+        traceLog(
             '[create class with effect]',
             this.constructor.name,
             controller.name
         )
-        controller.onDestroy(() => {
-            devLog(
+        controller.onCleanup((reason) => {
+            traceLog(
                 '[destroy class with effect]',
                 this.constructor.name,
                 controller.name
             )
-            this.onDestroyed()
+            this.destroy(reason)
         })
     }
-    abstract onDestroyed(): void
+    abstract destroy(reason?: string): void
 }

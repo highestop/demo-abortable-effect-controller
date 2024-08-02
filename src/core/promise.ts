@@ -1,39 +1,68 @@
-import { AsyncTask } from './async-task'
 import { EffectController } from './effect-controller'
-import { EffectExpireError } from './effect-expire-error'
-import { errorMessage } from './util'
+import { AbortErrorPrefix } from './abort-error'
+import { composeMessage } from './util'
+
+type PromiseWithControllerExecutor<T> = (
+    resolve: (value: T | PromiseLike<T> | PromiseWithController<T>) => void,
+    reject: (reason?: any) => any,
+    controller: EffectController
+) => void
+
+export class PromiseWithController<T = void> extends Promise<T> {
+    constructor(
+        executor: PromiseWithControllerExecutor<T>,
+        controller: EffectController = new EffectController()
+    ) {
+        controller.assertCanCreateAsyncTask('AsyncTask')
+
+        super((resolve, reject) => {
+            executor(resolve, reject, controller)
+        })
+    }
+}
 
 export function promiseWithController<T>(
-    promise: Promise<T>,
+    promiseLike: Promise<T>,
+    controller: EffectController
+)
+export function promiseWithController<T>(
+    promiseLike: PromiseWithController<T>,
+    controller: EffectController
+)
+export function promiseWithController<T>(
+    promiseLike: Promise<T> | PromiseWithControllerExecutor<T>,
     controller: EffectController = new EffectController()
 ) {
-    EffectController.assertCanCreateAsyncTask('Promise')
     controller.assertCanCreateAsyncTask('Promise')
 
-    const _promise = new AsyncTask<T>(
-        async (_resolve, _reject, _controller) => {
-            try {
-                const ret = await promise
+    if (promiseLike instanceof Promise) {
+        const promise = new PromiseWithController<T>(
+            async (_resolve, _reject, _controller) => {
+                try {
+                    const ret = await promiseLike
 
-                if (_controller.abortSignal.aborted) {
-                    _reject(
-                        new Error(
-                            errorMessage(
-                                EffectExpireError,
-                                _controller.abortSignal.reason
+                    if (_controller.abortSignal.aborted) {
+                        _reject(
+                            new Error(
+                                composeMessage(
+                                    AbortErrorPrefix,
+                                    _controller.abortSignal.reason
+                                )
                             )
                         )
-                    )
-                    return
+                        return
+                    }
+
+                    _resolve(ret)
+                } catch (e) {
+                    _reject(e)
                 }
-
-                _resolve(ret)
-            } catch (e) {
-                _reject(e)
-            }
-        },
-        controller
-    )
-
-    return [_promise, controller]
+            },
+            controller
+        )
+        return [promise, controller]
+    } else {
+        const promise = new PromiseWithController<T>(promiseLike, controller)
+        return [promise, controller]
+    }
 }

@@ -5,7 +5,6 @@ export function setTimeoutWithController(
     timeout: number,
     controller: EffectController = new EffectController()
 ) {
-    EffectController.assertCanCreateAsyncTask('Timeout')
     controller.assertCanCreateAsyncTask('Timeout')
 
     const sto = setTimeout(callback, timeout)
@@ -15,5 +14,5 @@ export function setTimeoutWithController(
     }
     controller.abortSignal.addEventListener('abort', cleanup)
 
-    return controller
+    return [sto, controller]
 }

@@ -7,11 +7,10 @@ export function createSocket(
     },
     controller: EffectController = new EffectController()
 ) {
-    EffectController.assertCanCreateAsyncTask('WebSocket')
     controller.assertCanCreateAsyncTask('WebSocket')
 
     const socket = new WebSocket(configs.url, configs.protocols)
-    controller.onDestroy(() => {
+    controller.onCleanup(() => {
         socket.close()
     })
 

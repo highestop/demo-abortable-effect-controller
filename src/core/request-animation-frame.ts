@@ -4,7 +4,6 @@ export function requestAnimationFrameWithController(
     callback: FrameRequestCallback,
     controller: EffectController = new EffectController()
 ) {
-    EffectController.assertCanCreateAsyncTask('RequestAnimationFrame')
     controller.assertCanCreateAsyncTask('RequestAnimationFrame')
 
     const raf = requestAnimationFrame(callback)
@@ -14,5 +13,5 @@ export function requestAnimationFrameWithController(
     }
     controller.abortSignal.addEventListener('abort', cleanup)
 
-    return controller
+    return [raf, controller]
 }

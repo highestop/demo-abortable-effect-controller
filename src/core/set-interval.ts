@@ -5,7 +5,6 @@ export function setIntervalWithController(
     interval: number,
     controller: EffectController = new EffectController()
 ) {
-    EffectController.assertCanCreateAsyncTask('Interval')
     controller.assertCanCreateAsyncTask('Interval')
 
     const stv = setInterval(callback, interval)
@@ -15,5 +14,5 @@ export function setIntervalWithController(
     }
     controller.abortSignal.addEventListener('abort', cleanup)
 
-    return controller
+    return [stv, controller]
 }

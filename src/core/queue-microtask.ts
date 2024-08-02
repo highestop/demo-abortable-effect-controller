@@ -4,7 +4,6 @@ export function queueMicrotaskWithController<T>(
     callback: () => Promise<T> | PromiseLike<T>,
     controller: EffectController = new EffectController()
 ) {
-    EffectController.assertCanCreateAsyncTask('Microtask')
     controller.assertCanCreateAsyncTask('Microtask')
 
     queueMicrotask(() => {
@@ -13,5 +12,5 @@ export function queueMicrotaskWithController<T>(
         }
     })
 
-    return controller
+    return [controller]
 }
