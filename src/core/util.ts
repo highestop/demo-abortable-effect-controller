@@ -1,11 +1,9 @@
-export const isDev = process.env.NODE_ENV !== 'production'
-
-export function traceLog(...args: any[]) {
-    if (isDev) {
+export function log(...args: any[]) {
+    if (process.env.NODE_ENV !== 'production') {
         console.log(...args)
     }
 }
 
-export function composeMessage(title: string, description?: string) {
+export function tip(title: string, description?: string) {
     return [title, description && `(${description})`].join(' ')
 }

@@ -1,6 +1,6 @@
-import { EffectController } from './effect-controller'
-import { AbortErrorPrefix } from './abort-error'
-import { composeMessage } from './util'
+import { EffectController } from '../core/effect-controller'
+import { AbortErrorPrefix } from '../core/abort-error'
+import { tip } from '../core/util'
 
 type PromiseWithControllerExecutor<T> = (
     resolve: (value: T | PromiseLike<T> | PromiseWithController<T>) => void,
@@ -8,13 +8,11 @@ type PromiseWithControllerExecutor<T> = (
     controller: EffectController
 ) => void
 
-export class PromiseWithController<T = void> extends Promise<T> {
+class PromiseWithController<T = void> extends Promise<T> {
     constructor(
         executor: PromiseWithControllerExecutor<T>,
-        controller: EffectController = new EffectController()
+        controller: EffectController
     ) {
-        controller.assertCanCreateAsyncTask('AsyncTask')
-
         super((resolve, reject) => {
             executor(resolve, reject, controller)
         })
@@ -22,19 +20,21 @@ export class PromiseWithController<T = void> extends Promise<T> {
 }
 
 export function promiseWithController<T>(
+    id: string,
     promiseLike: Promise<T>,
-    controller: EffectController
-)
+    parentController: EffectController
+): [PromiseWithController<T>, EffectController]
 export function promiseWithController<T>(
+    id: string,
     promiseLike: PromiseWithController<T>,
-    controller: EffectController
-)
+    parentController: EffectController
+): [PromiseWithController<T>, EffectController]
 export function promiseWithController<T>(
+    id: string,
     promiseLike: Promise<T> | PromiseWithControllerExecutor<T>,
-    controller: EffectController = new EffectController()
-) {
-    controller.assertCanCreateAsyncTask('Promise')
-
+    parentController: EffectController
+): [PromiseWithController<T>, EffectController] {
+    const controller = parentController.createChildController(id)
     if (promiseLike instanceof Promise) {
         const promise = new PromiseWithController<T>(
             async (_resolve, _reject, _controller) => {
@@ -44,7 +44,7 @@ export function promiseWithController<T>(
                     if (_controller.abortSignal.aborted) {
                         _reject(
                             new Error(
-                                composeMessage(
+                                tip(
                                     AbortErrorPrefix,
                                     _controller.abortSignal.reason
                                 )

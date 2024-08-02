@@ -1,16 +1,15 @@
-import { EffectController } from './effect-controller'
+import { EffectController } from '../core/effect-controller'
 
 export function queueMicrotaskWithController<T>(
+    id: string,
     callback: () => Promise<T> | PromiseLike<T>,
-    controller: EffectController = new EffectController()
-) {
-    controller.assertCanCreateAsyncTask('Microtask')
-
+    parentController: EffectController
+): [EffectController] {
+    const controller = parentController.createChildController(id)
     queueMicrotask(() => {
         if (!controller.abortSignal.aborted) {
             callback()
         }
     })
-
     return [controller]
 }
