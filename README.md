@@ -23,12 +23,12 @@
 
 ## 设计
 
-- Task: 一个执行任务，包含同步或异步。
-- AsyncTask: 一个异步任务，包含微任务 Promise、宏任务 Timeout/Interval、AnimationFrame、IdleCallback 等。
-- Context / EffectContext: 一个任务执行的上下文容器。容器中可能包含若干同步或异步任务，容器的创建或销毁，会影响其中所有任务的执行和副作用清理。
-- Controller / EffectController / AbortableEffectController: 一个生命周期控制器，控制一个 Context 的创建、中断、销毁和清理。
-- Cleanup / CleanupEffect: 控制器的清理。会清理控制器控制的 Context 下的所有副作用，无论包含的异步是否处理完，只处理执行清理时已经收集到的清理工作。
-- Abort: 控制器的中断。一般只对异步任务有意义，同步任务执行中不可能插入中断操作。
-- Destroy: 控制器的销毁。会伴随中断和清理。
+- **Task**: 一个执行任务，包含同步或异步。
+- **AsyncTask**: 一个异步任务，包含微任务 Promise、宏任务 Timeout/Interval、AnimationFrame、IdleCallback 等。
+- **Context**: 一段任务执行的上下文容器。容器中可能包含若干同步或异步任务，容器的创建或销毁，会影响其中所有任务的执行和副作用清理。
+- **AbortableEffectController**: 一个生命周期控制器，控制一个 Context 的创建、中断、销毁和清理。
+- **Cleanup**: 控制器的清理。会清理控制器控制的 Context 下的所有副作用，无论包含的异步是否处理完，只处理执行清理时已经收集到的清理工作。
+- **Abort**: 控制器的中断。一般只对异步任务有意义，同步任务执行中不可能插入中断操作。
+- **Destroy**: 控制器的销毁。会伴随中断和清理。
 
-> Context 容器可以类比 React 中的 Context 或 Angular 中的 Module，它们在 UI 框架中也有生命周期的概念，如 React useEffect 的 setup cleanup 和 Angular 中的 onInit onDestroy。我们要做的其实是把需要严格控制的一系列代码任务剥离 Render 框架，因此 Context 的含义也发生了变化，它不一定是指一些组件的外层容器，而是持有着一些状态、管理着一些任务的一个流程，这个流程可以随时被事件终止或回退。创建、流转、终止、完成、回退，这些是容器的生命周期。
+> Context 容器可以类比 React 中的 Context 或 Angular 中的 Module，它们在 UI 框架中也有生命周期的概念，如 React useEffect 的 setup cleanup 和 Angular 中的 onInit onDestroy。我们要做的其实是把需要严格控制的一系列任务剥离 Render 框架，因此 Context 的含义也发生了变化，它不一定是指一些组件的外层容器，而是持有着一些状态、管理着一些任务的一个流程，这个流程可以随时被事件终止或回退。创建、流转、终止、完成、回退，这些是容器的生命周期。
