@@ -5,7 +5,7 @@ export function requestIdleCallbackWithController(
     controller: AbortableEffectController
 ): void {
     const ric = requestIdleCallback(callback)
-    const cleanup = () => {
+    controller.onCleanup(() => {
         if (process.env.NODE_ENV !== 'production') {
             console.log(
                 `AnimationFrame is aborted in Controller (${controller.id}).`
@@ -13,7 +13,5 @@ export function requestIdleCallbackWithController(
         }
 
         cancelIdleCallback(ric)
-        controller.abortSignal.removeEventListener('abort', cleanup)
-    }
-    controller.abortSignal.addEventListener('abort', cleanup)
+    })
 }

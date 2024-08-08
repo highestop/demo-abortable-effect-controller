@@ -6,13 +6,11 @@ export function setTimeoutWithController(
     controller: AbortableEffectController
 ): void {
     const sto = setTimeout(callback, timeout)
-    const cleanup = () => {
+    controller.onCleanup(() => {
         if (process.env.NODE_ENV !== 'production') {
             console.log(`Timeout is aborted in Controller (${controller.id}).`)
         }
 
         clearTimeout(sto)
-        controller.abortSignal.removeEventListener('abort', cleanup)
-    }
-    controller.abortSignal.addEventListener('abort', cleanup)
+    })
 }

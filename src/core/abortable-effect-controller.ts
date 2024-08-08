@@ -32,12 +32,11 @@ export class AbortableEffectController {
             )
         }
 
-        const cleanupListener = () => {
-            cleanupCallback(this.abortSignal.reason)
-            // 这里保证 cleanupCallback 只会被调用一次且不会导致内存泄漏
-            this.abortSignal.removeEventListener('abort', cleanupListener)
-        }
-        this.abortSignal.addEventListener('abort', cleanupListener)
+        this.abortSignal.addEventListener(
+            'abort',
+            () => cleanupCallback(this.abortSignal.reason),
+            { once: true } // 这里保证 cleanupCallback 只会被调用一次且不会导致内存泄漏
+        )
     }
 
     destroy(reason?: string) {

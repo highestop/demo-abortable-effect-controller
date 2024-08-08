@@ -3,8 +3,7 @@ import { AbortableEffectController } from '../core/abortable-effect-controller'
 
 type PromiseWithControllerExecutor<T> = (
     resolve: (value: T | PromiseLike<T> | PromiseWithController<T>) => void,
-    reject: (reason?: any) => any,
-    controller: AbortableEffectController
+    reject: (reason?: any) => any
 ) => void
 
 class PromiseWithController<T = void> extends Promise<T> {
@@ -13,7 +12,7 @@ class PromiseWithController<T = void> extends Promise<T> {
         controller: AbortableEffectController
     ) {
         super((resolve, reject) => {
-            executor(resolve, reject, controller)
+            executor(resolve, reject)
         })
     }
 }
@@ -31,28 +30,20 @@ export function promiseWithController<T>(
     controller: AbortableEffectController
 ): PromiseWithController<T> {
     if (promise instanceof Promise) {
-        return new PromiseWithController<T>(
-            async (_resolve, _reject, _controller) => {
-                try {
-                    const ret = await promise
-
-                    if (_controller.abortSignal.aborted) {
-                        if (process.env.NODE_ENV !== 'production') {
-                            console.log(
-                                `Promise is aborted in Controller (${controller.id}).`
-                            )
-                        }
-
-                        _reject(new AbortError(_controller.abortSignal.reason))
-                    } else {
-                        _resolve(ret)
-                    }
-                } catch (e) {
-                    _reject(e)
+        return new PromiseWithController<T>(async (_resolve, _reject) => {
+            const ret = await promise
+            if (controller.abortSignal.aborted) {
+                if (process.env.NODE_ENV !== 'production') {
+                    console.log(
+                        `Promise is aborted in Controller (${controller.id}).`
+                    )
                 }
-            },
-            controller
-        )
+
+                _reject(new AbortError(controller.abortSignal.reason))
+            } else {
+                _resolve(ret)
+            }
+        }, controller)
     } else {
         return new PromiseWithController<T>(promise, controller)
     }
