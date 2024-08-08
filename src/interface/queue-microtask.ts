@@ -1,15 +1,18 @@
-import { EffectController } from '../core/effect-controller'
+import { AbortableEffectController } from '../core/abortable-effect-controller'
 
 export function queueMicrotaskWithController<T>(
-    id: string,
-    callback: () => Promise<T> | PromiseLike<T>,
-    parentController: EffectController
-): [EffectController] {
-    const controller = parentController.createChildController(id)
+    callback: () => void,
+    controller: AbortableEffectController
+): void {
     queueMicrotask(() => {
-        if (!controller.abortSignal.aborted) {
-            callback()
+        if (controller.abortSignal.aborted) {
+            if (process.env.NODE_ENV !== 'production') {
+                console.log(
+                    `Microtask is aborted in Controller (${controller.id}).`
+                )
+            }
+            return
         }
+        callback()
     })
-    return [controller]
 }

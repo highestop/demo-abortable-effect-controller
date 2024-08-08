@@ -1,17 +1,18 @@
-import { EffectController } from '../core/effect-controller'
+import { AbortableEffectController } from '../core/abortable-effect-controller'
 
 export function setIntervalWithController(
-    id: string,
     callback: () => void,
     interval: number,
-    parentController: EffectController
-): [ReturnType<typeof setInterval>, EffectController] {
-    const controller = parentController.createChildController(id)
+    controller: AbortableEffectController
+): void {
     const stv = setInterval(callback, interval)
     const cleanup = () => {
+        if (process.env.NODE_ENV !== 'production') {
+            console.log(`Interval is aborted in Controller (${controller.id}).`)
+        }
+
         clearInterval(stv)
         controller.abortSignal.removeEventListener('abort', cleanup)
     }
     controller.abortSignal.addEventListener('abort', cleanup)
-    return [stv, controller]
 }

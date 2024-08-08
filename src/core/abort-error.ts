@@ -1,7 +1,12 @@
-export const AbortErrorPrefix = 'AbortError'
+const AbortErrorPrefix = 'AbortError'
 
-export function isAbortError(error: string | Error) {
-    return error instanceof Error
-        ? error.message.startsWith(AbortErrorPrefix)
-        : typeof error === 'string' && error.startsWith(AbortErrorPrefix)
+export function isAbortError(error: any) {
+    return error instanceof AbortError && error.name === AbortErrorPrefix
+}
+
+export class AbortError extends Error {
+    constructor(reason?: string) {
+        super(reason)
+        this.name = AbortErrorPrefix
+    }
 }

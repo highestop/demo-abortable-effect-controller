@@ -1,10 +1,9 @@
-import { EffectController } from '../core/effect-controller'
+import { AbortableEffectController } from '../core/abortable-effect-controller'
 
 export function fetchWithController(
     id: string,
     request: RequestInfo,
-    parentController: EffectController
-): [Promise<Response>, EffectController] {
-    const controller = parentController.createChildController(id)
-    return [fetch(request, { signal: controller.abortSignal }), controller]
+    controller: AbortableEffectController
+): Promise<Response> {
+    return fetch(request, { signal: controller.abortSignal })
 }

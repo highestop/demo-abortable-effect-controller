@@ -1,22 +1,20 @@
-import { DependencyList, useEffect } from 'react'
-import { EffectController } from '../core/effect-controller'
+import { useEffect } from 'react'
+import { AbortableEffectController } from '../core/abortable-effect-controller'
 
 /**
  *
  * @param setup
- * @param deps
  * @param options
  */
 export function useEffectController(
-    setup: (controller: EffectController) => any,
-    deps: DependencyList,
-    options?: { controllerName?: string; cleanupReason?: string }
+    setup: (controller: AbortableEffectController) => any,
+    options?: { controllerId?: string; cleanupReason?: string }
 ) {
     useEffect(() => {
-        const controller = new EffectController(options?.controllerName)
+        const controller = new AbortableEffectController(options?.controllerId)
         setup(controller)
         return () => {
             controller.destroy(options?.cleanupReason)
         }
-    }, deps)
+    }, [])
 }

@@ -1,17 +1,16 @@
-import { EffectController } from '../core/effect-controller'
-import { AbortErrorPrefix } from '../core/abort-error'
-import { tip } from '../core/util'
+import { AbortError } from '../core/abort-error'
+import { AbortableEffectController } from '../core/abortable-effect-controller'
 
 type PromiseWithControllerExecutor<T> = (
     resolve: (value: T | PromiseLike<T> | PromiseWithController<T>) => void,
     reject: (reason?: any) => any,
-    controller: EffectController
+    controller: AbortableEffectController
 ) => void
 
 class PromiseWithController<T = void> extends Promise<T> {
     constructor(
         executor: PromiseWithControllerExecutor<T>,
-        controller: EffectController
+        controller: AbortableEffectController
     ) {
         super((resolve, reject) => {
             executor(resolve, reject, controller)
@@ -20,49 +19,41 @@ class PromiseWithController<T = void> extends Promise<T> {
 }
 
 export function promiseWithController<T>(
-    id: string,
-    promiseLike: Promise<T>,
-    parentController: EffectController
-): [PromiseWithController<T>, EffectController]
+    promise: Promise<T>,
+    controller: AbortableEffectController
+): PromiseWithController<T>
 export function promiseWithController<T>(
-    id: string,
-    promiseLike: PromiseWithController<T>,
-    parentController: EffectController
-): [PromiseWithController<T>, EffectController]
+    promise: PromiseWithController<T>,
+    controller: AbortableEffectController
+): PromiseWithController<T>
 export function promiseWithController<T>(
-    id: string,
-    promiseLike: Promise<T> | PromiseWithControllerExecutor<T>,
-    parentController: EffectController
-): [PromiseWithController<T>, EffectController] {
-    const controller = parentController.createChildController(id)
-    if (promiseLike instanceof Promise) {
-        const promise = new PromiseWithController<T>(
+    promise: Promise<T> | PromiseWithControllerExecutor<T>,
+    controller: AbortableEffectController
+): PromiseWithController<T> {
+    if (promise instanceof Promise) {
+        return new PromiseWithController<T>(
             async (_resolve, _reject, _controller) => {
                 try {
-                    const ret = await promiseLike
+                    const ret = await promise
 
                     if (_controller.abortSignal.aborted) {
-                        _reject(
-                            new Error(
-                                tip(
-                                    AbortErrorPrefix,
-                                    _controller.abortSignal.reason
-                                )
+                        if (process.env.NODE_ENV !== 'production') {
+                            console.log(
+                                `Promise is aborted in Controller (${controller.id}).`
                             )
-                        )
-                        return
-                    }
+                        }
 
-                    _resolve(ret)
+                        _reject(new AbortError(_controller.abortSignal.reason))
+                    } else {
+                        _resolve(ret)
+                    }
                 } catch (e) {
                     _reject(e)
                 }
             },
             controller
         )
-        return [promise, controller]
     } else {
-        const promise = new PromiseWithController<T>(promiseLike, controller)
-        return [promise, controller]
+        return new PromiseWithController<T>(promise, controller)
     }
 }

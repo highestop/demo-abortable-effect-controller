@@ -1,17 +1,23 @@
-import { EffectController } from '../core/effect-controller'
+import { AbortableEffectController } from '../core/abortable-effect-controller'
 
 export function createSocket(
-    id: string,
     configs: {
         url: string | URL
         protocols?: string | string[]
     },
-    parentController: EffectController
-): [WebSocket, EffectController] {
-    const controller = parentController.createChildController(id)
+    controller: AbortableEffectController
+): WebSocket {
     const socket = new WebSocket(configs.url, configs.protocols)
+
     controller.onCleanup(() => {
+        if (process.env.NODE_ENV !== 'production') {
+            console.log(
+                `WebSocket is closing in Controller (${controller.id}).`
+            )
+        }
+
         socket.close()
     })
-    return [socket, controller]
+
+    return socket
 }

@@ -1,17 +1,18 @@
-import { EffectController } from '../core/effect-controller'
+import { AbortableEffectController } from '../core/abortable-effect-controller'
 
 export function setTimeoutWithController(
-    id: string,
     callback: () => void,
     timeout: number,
-    parentController: EffectController
-): [ReturnType<typeof setTimeout>, EffectController] {
-    const controller = parentController.createChildController(id)
+    controller: AbortableEffectController
+): void {
     const sto = setTimeout(callback, timeout)
     const cleanup = () => {
+        if (process.env.NODE_ENV !== 'production') {
+            console.log(`Timeout is aborted in Controller (${controller.id}).`)
+        }
+
         clearTimeout(sto)
         controller.abortSignal.removeEventListener('abort', cleanup)
     }
     controller.abortSignal.addEventListener('abort', cleanup)
-    return [sto, controller]
 }
