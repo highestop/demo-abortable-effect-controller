@@ -23,8 +23,8 @@
 
 ## 设计
 
-- **Task**: 一个执行任务，包含同步或异步。
-- **AsyncTask**: 一个异步任务，包含微任务 Promise、宏任务 Timeout/Interval、AnimationFrame、IdleCallback 等。
+- **Task**: 泛指一个可执行任务，包含同步或异步。
+- **AsyncTask**: 一个异步任务，包含微任务 Promise、宏任务 Timeout/Interval、AnimationFrame 等。
 - **Context**: 一段任务执行的上下文容器。容器中可能包含若干同步或异步任务，容器的创建或销毁，会影响其中所有任务的执行和副作用清理。
 - **AbortableEffectController**: 一个生命周期控制器，控制一个 Context 的创建、中断、销毁和清理。
 - **Cleanup**: 控制器的清理。会清理控制器控制的 Context 下的所有副作用，无论包含的异步是否处理完，只处理执行清理时已经收集到的清理工作。
