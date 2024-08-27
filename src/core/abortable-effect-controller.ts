@@ -26,7 +26,7 @@ export class AbortableEffectController {
         this._controllerMap.clear()
     }
 
-    private readonly id: string
+    readonly id: string
     constructor(id_?: string) {
         if (process.env.NODE_ENV !== 'production') {
             console.log(`Create Controller (${this.id})`)
@@ -67,11 +67,9 @@ export class AbortableEffectController {
             )
         }
 
-        // 在执行 abort 之前先打印 log 标记开始销毁
         if (process.env.NODE_ENV !== 'production') {
             console.log(`Destroy Controller (${this.id})`)
         }
-
         this.abortController.abort(reason)
     }
 

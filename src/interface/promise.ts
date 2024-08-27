@@ -7,10 +7,7 @@ type PromiseWithControllerExecutor<T> = (
 ) => void
 
 class PromiseWithController<T = void> extends Promise<T> {
-    constructor(
-        executor: PromiseWithControllerExecutor<T>,
-        controller: AbortableEffectController
-    ) {
+    constructor(executor: PromiseWithControllerExecutor<T>) {
         super((resolve, reject) => {
             executor(resolve, reject)
         })
@@ -43,8 +40,8 @@ export function promiseWithController<T>(
             } else {
                 _resolve(ret)
             }
-        }, controller)
+        })
     } else {
-        return new PromiseWithController<T>(promise, controller)
+        return new PromiseWithController<T>(promise)
     }
 }
