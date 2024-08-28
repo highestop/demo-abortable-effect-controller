@@ -17,7 +17,7 @@ export class AbortableEffectController {
         for (const controller of this._controllerMap.values()) {
             if (!controller.abortSignal.aborted) {
                 throw new AbortableEffectControllerError(
-                    'Controller is not aborted.',
+                    'Controller is not aborted on global cleanup.',
                     controller.id
                 )
             }
@@ -34,6 +34,9 @@ export class AbortableEffectController {
         // 每个 controller 有一个唯一 id
         this.id = `${AbortableEffectController._controllerId++}:${id_ ?? '-'}`
         // 静态变量持有所有 controller 的映射关系
+        if (AbortableEffectController._controllerMap.has(this.id)) {
+            throw new AbortableEffectControllerError('Controller id duplicated', this.id)
+        }
         AbortableEffectController._controllerMap.set(this.id, this)
     }
 
