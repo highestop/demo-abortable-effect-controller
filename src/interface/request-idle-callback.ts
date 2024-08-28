@@ -8,7 +8,7 @@ export function requestIdleCallbackWithController(
     controller.onCleanup(() => {
         if (process.env.NODE_ENV !== 'production') {
             console.log(
-                `AnimationFrame is aborted in Controller (${controller.id}).`
+                `IdleCallback is aborted in Controller (${controller.id}).`
             )
         }
 
