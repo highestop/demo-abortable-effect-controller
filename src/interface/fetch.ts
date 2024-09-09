@@ -5,5 +5,7 @@ export function fetchWithController(
     request: RequestInfo,
     controller: AbortableEffectController
 ): Promise<Response> {
-    return fetch(request, { signal: controller.abortSignal })
+    const abortController = new AbortController()
+    controller.onCleanup(() => abortController.abort())
+    return fetch(request, { signal: abortController.signal })
 }
