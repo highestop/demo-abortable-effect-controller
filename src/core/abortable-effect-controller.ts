@@ -11,25 +11,8 @@ class AbortableEffectControllerError extends Error {
 export class AbortableEffectController {
     private static _controllerId = 0
     private static _controllerMap = new Map<string, AbortableEffectController>()
-
-    static globalCleanup() {
-        // 检查是否所有 controller 都被 abort 了，存在没有 abort 的就报错
-        for (const controller of this._controllerMap.values()) {
-            if (!controller.destroyed) {
-                throw new AbortableEffectControllerError(
-                    'Controller is not aborted.',
-                    controller.id
-                )
-            }
-            if (controller.cleanupCallbacks.length) {
-                throw new AbortableEffectControllerError(
-                    'Controller still has cleanup callbacks.',
-                    controller.id
-                )
-            }
-        }
-        // 清理所有 controller 持有以释放内存
-        this._controllerMap.clear()
+    static controllerKeys() {
+        return AbortableEffectController._controllerMap.keys()
     }
 
     readonly id: string
@@ -38,7 +21,7 @@ export class AbortableEffectController {
             console.log(`Create Controller (${this.id})`)
         }
         // 每个 controller 有一个唯一 id
-        this.id = `${AbortableEffectController._controllerId++}:${id_ ?? '-'}`
+        this.id = `${AbortableEffectController._controllerId++}:${id_ ?? '~'}`
         // 静态变量持有所有 controller 的映射关系
         if (AbortableEffectController._controllerMap.has(this.id)) {
             throw new AbortableEffectControllerError(
@@ -49,20 +32,17 @@ export class AbortableEffectController {
         AbortableEffectController._controllerMap.set(this.id, this)
     }
 
-    private _destroyed: { status: false } | { status: true; reason?: string } =
-        { status: false }
+    private _destroyed: { status: false } | { status: true; reason?: string } = { status: false }
     private _destroy(reason?: string) {
-        this._destroyed = {
-            status: true,
-            reason,
-        }
+        this._destroyed = { status: true, reason }
+        AbortableEffectController._controllerMap.delete(this.id)
     }
     get destroyed() {
         return !!this._destroyed.status
     }
+
     // 得是个有序的列表，在 cleanup 时要反序要清理
     private cleanupCallbacks: CleanupCallback[] = []
-
     onCleanup = (cleanupCallback: CleanupCallback) => {
         // 如果已经被销毁，直接抛出异常，不允许再追加清理工作
         if (this.destroyed) {
