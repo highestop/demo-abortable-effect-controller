@@ -1,11 +1,11 @@
-import { AbortableEffectController } from '../core/abortable-effect-controller'
+import { TracableAbortController } from '../impl'
 
 export function createSocket(
     configs: {
         url: string | URL
         protocols?: string | string[]
     },
-    controller: AbortableEffectController
+    controller: TracableAbortController
 ): WebSocket {
     const socket = new WebSocket(configs.url, configs.protocols)
 

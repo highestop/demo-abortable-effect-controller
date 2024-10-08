@@ -1,8 +1,8 @@
-import { AbortableEffectController } from '../core/abortable-effect-controller'
+import { TracableAbortController } from '../impl'
 
 export function requestAnimationFrameWithController(
     callback: FrameRequestCallback,
-    controller: AbortableEffectController
+    controller: TracableAbortController
 ): void {
     const raf = requestAnimationFrame(callback)
     controller.onCleanup(() => {
@@ -11,7 +11,6 @@ export function requestAnimationFrameWithController(
                 `AnimationFrame is aborted in Controller (${controller.id}).`
             )
         }
-
         cancelAnimationFrame(raf)
     })
 }

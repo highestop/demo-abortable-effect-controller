@@ -1,9 +1,9 @@
-import { AbortableEffectController } from '../core/abortable-effect-controller'
+import { TracableAbortController } from '../impl'
 
 export function setTimeoutWithController(
     callback: () => void,
     timeout: number,
-    controller: AbortableEffectController
+    controller: TracableAbortController
 ): void {
     const sto = setTimeout(callback, timeout)
     controller.onCleanup(() => {

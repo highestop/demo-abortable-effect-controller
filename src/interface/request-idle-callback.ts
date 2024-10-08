@@ -1,8 +1,8 @@
-import { AbortableEffectController } from '../core/abortable-effect-controller'
+import { TracableAbortController } from '../impl'
 
 export function requestIdleCallbackWithController(
     callback: () => void,
-    controller: AbortableEffectController
+    controller: TracableAbortController
 ): void {
     const ric = requestIdleCallback(callback)
     controller.onCleanup(() => {

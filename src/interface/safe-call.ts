@@ -1,8 +1,8 @@
-import { AbortableEffectController } from '../core/abortable-effect-controller'
+import { TracableAbortController } from '../impl'
 
 export function safeCall(
     call: () => void,
-    controller: AbortableEffectController,
+    controller: TracableAbortController,
     callId?: string
 ) {
     if (controller.destroyed) {

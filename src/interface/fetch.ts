@@ -1,9 +1,8 @@
-import { AbortableEffectController } from '../core/abortable-effect-controller'
+import { TracableAbortController } from '../impl'
 
 export function fetchWithController(
-    id: string,
     request: RequestInfo,
-    controller: AbortableEffectController
+    controller: TracableAbortController
 ): Promise<Response> {
     const abortController = new AbortController()
     controller.onCleanup(() => abortController.abort())

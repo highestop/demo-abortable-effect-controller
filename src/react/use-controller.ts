@@ -1,11 +1,6 @@
 import { useEffect } from 'react'
-import { TracableAbortController } from '../core/tracable-abort-controller'
+import { TracableAbortController } from '../impl'
 
-/**
- *
- * @param setup
- * @param options
- */
 export function useController(
     setup: (controller: TracableAbortController) => any,
     options?: { controllerId?: string; cleanupReason?: string }

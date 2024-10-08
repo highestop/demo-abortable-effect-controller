@@ -1,9 +1,9 @@
-import { AbortableEffectController } from '../core/abortable-effect-controller'
+import { TracableAbortController } from '../impl'
 import { safeCall } from './safe-call'
 
-export function queueMicrotaskWithController<T>(
+export function queueMicrotaskWithController(
     callback: () => void,
-    controller: AbortableEffectController
+    controller: TracableAbortController
 ): void {
     queueMicrotask(() => {
         safeCall(callback, controller, 'Microtask')

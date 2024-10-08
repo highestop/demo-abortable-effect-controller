@@ -1,9 +1,9 @@
-import { AbortableEffectController } from '../core/abortable-effect-controller'
+import { TracableAbortController } from '../impl'
 
 export function setIntervalWithController(
     callback: () => void,
     interval: number,
-    controller: AbortableEffectController
+    controller: TracableAbortController
 ): void {
     const stv = setInterval(callback, interval)
     controller.onCleanup(() => {
